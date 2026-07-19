@@ -19,100 +19,70 @@ class GoogleFlightsScraper:
 
         with sync_playwright() as p:
 
-            browser = p.chromium.launch(
-                headless=HEADLESS,
-                args=[
-                    "--no-sandbox",
-                    "--disable-dev-shm-usage"
-                ]
-            )
+            browser = self.__open_browser(p)
 
-            page = browser.new_page(
-                viewport=VIEWPORT
-            )
+            page = self.__open_page(browser, url)
 
-            page.goto(
-                url,
-                wait_until="domcontentloaded"
-            )
+            self.__ensure_results(page)
 
-            # Primeira tentativa
-            if not self.__wait_for_results(page):
+            flights = self.__parse(page)
 
-                print("Resultados não carregaram.")
-
-                # Procura o botão Atualizar
-                try:
-
-                    update_button = page.get_by_role(
-                        "button",
-                        name="Atualizar"
-                    )
-
-                    if update_button.is_visible():
-
-                        print("Botão 'Atualizar' encontrado. Tentando novamente...")
-
-                        update_button.click()
-
-                        if self.__wait_for_results(page):
-
-                            print("Resultados carregados após clicar em Atualizar.")
-
-                        else:
-
-                            print("Ainda sem resultados após Atualizar.")
-
-                    else:
-
-                        print("Botão Atualizar não encontrado.")
-
-                except Exception:
-
-                    print("Não foi possível clicar em Atualizar.")
-
-                # Última tentativa
-                if not self.__wait_for_results(page):
-
-                    print("Recarregando a página...")
-
-                    page.reload(
-                        wait_until="domcontentloaded"
-                    )
-
-                    if not self.__wait_for_results(page):
-
-                        page.screenshot(
-                            path="data/search_result_error.png",
-                            full_page=True
-                        )
-
-                        with open(
-                            "data/search_result_error.html",
-                            "w",
-                            encoding="utf-8"
-                        ) as f:
-
-                            f.write(page.content())
-
-                        browser.close()
-
-                        raise RuntimeError(
-                            "Não foi possível carregar os resultados do Google Flights."
-                        )
-
-            parser = FlightParser()
-
-            flights = parser.parse(page)
-
-            page.screenshot(
-                path="data/search_result.png",
-                full_page=True
-            )
+            self.__save_success(page)
 
             browser.close()
 
             return flights
+
+    def __open_browser(self, playwright):
+
+        return playwright.chromium.launch(
+            headless=HEADLESS,
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ]
+        )
+
+    def __open_page(self, browser, url):
+
+        page = browser.new_page(
+            viewport=VIEWPORT
+        )
+
+        page.goto(
+            url,
+            wait_until="domcontentloaded"
+        )
+
+        return page
+
+    def __ensure_results(self, page):
+
+        if self.__wait_for_results(page):
+            return
+
+        print("Resultados não carregaram.")
+
+        if self.__click_update(page):
+
+            print("Resultados carregados após clicar em Atualizar.")
+
+            return
+
+        print("Recarregando página...")
+
+        page.reload(
+            wait_until="domcontentloaded"
+        )
+
+        if self.__wait_for_results(page):
+            return
+
+        self.__save_error(page)
+
+        raise RuntimeError(
+            "Não foi possível carregar os resultados do Google Flights."
+        )
 
     def __wait_for_results(self, page):
 
@@ -128,3 +98,53 @@ class GoogleFlightsScraper:
         except TimeoutError:
 
             return False
+
+    def __click_update(self, page):
+
+        try:
+
+            button = page.get_by_role(
+                "button",
+                name="Atualizar"
+            )
+
+            if not button.is_visible():
+                return False
+
+            print("Botão 'Atualizar' encontrado.")
+
+            button.click()
+
+            return self.__wait_for_results(page)
+
+        except Exception:
+
+            return False
+
+    def __parse(self, page):
+
+        parser = FlightParser()
+
+        return parser.parse(page)
+
+    def __save_success(self, page):
+
+        page.screenshot(
+            path="data/search_result.png",
+            full_page=True
+        )
+
+    def __save_error(self, page):
+
+        page.screenshot(
+            path="data/search_result_error.png",
+            full_page=True
+        )
+
+        with open(
+            "data/search_result_error.html",
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            file.write(page.content())
