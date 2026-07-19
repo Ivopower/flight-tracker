@@ -44,3 +44,24 @@ class FlightRepository:
                 flight.price,
             ),
         )
+
+    def get_all(self):
+
+        return self.database.execute(
+            """
+            SELECT
+                searched_at,
+                origin,
+                destination,
+                departure_date,
+                airline,
+                departure,
+                arrival,
+                duration,
+                route,
+                stops,
+                price
+            FROM flights
+            ORDER BY searched_at DESC
+            """
+        ).fetchall()

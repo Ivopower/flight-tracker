@@ -1,9 +1,9 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError, sync_playwright
 
 from src.config import HEADLESS, VIEWPORT
 from src.models.flight_search import FlightSearch
-from src.providers.google_flights_provider import GoogleFlightsProvider
 from src.parsers.flight_parser import FlightParser
+from src.providers.google_flights_provider import GoogleFlightsProvider
 
 
 class GoogleFlightsScraper:
@@ -31,13 +31,78 @@ class GoogleFlightsScraper:
                 viewport=VIEWPORT
             )
 
-            page.goto(url)
+            page.goto(
+                url,
+                wait_until="domcontentloaded"
+            )
 
-            page.wait_for_load_state("domcontentloaded")
+            # Primeira tentativa
+            if not self.__wait_for_results(page):
 
-            page.wait_for_timeout(8000)
+                print("Resultados não carregaram.")
+
+                # Procura o botão Atualizar
+                try:
+
+                    update_button = page.get_by_role(
+                        "button",
+                        name="Atualizar"
+                    )
+
+                    if update_button.is_visible():
+
+                        print("Botão 'Atualizar' encontrado. Tentando novamente...")
+
+                        update_button.click()
+
+                        if self.__wait_for_results(page):
+
+                            print("Resultados carregados após clicar em Atualizar.")
+
+                        else:
+
+                            print("Ainda sem resultados após Atualizar.")
+
+                    else:
+
+                        print("Botão Atualizar não encontrado.")
+
+                except Exception:
+
+                    print("Não foi possível clicar em Atualizar.")
+
+                # Última tentativa
+                if not self.__wait_for_results(page):
+
+                    print("Recarregando a página...")
+
+                    page.reload(
+                        wait_until="domcontentloaded"
+                    )
+
+                    if not self.__wait_for_results(page):
+
+                        page.screenshot(
+                            path="data/search_result_error.png",
+                            full_page=True
+                        )
+
+                        with open(
+                            "data/search_result_error.html",
+                            "w",
+                            encoding="utf-8"
+                        ) as f:
+
+                            f.write(page.content())
+
+                        browser.close()
+
+                        raise RuntimeError(
+                            "Não foi possível carregar os resultados do Google Flights."
+                        )
 
             parser = FlightParser()
+
             flights = parser.parse(page)
 
             page.screenshot(
@@ -48,3 +113,18 @@ class GoogleFlightsScraper:
             browser.close()
 
             return flights
+
+    def __wait_for_results(self, page):
+
+        try:
+
+            page.wait_for_selector(
+                "li.pIav2d",
+                timeout=10000
+            )
+
+            return True
+
+        except TimeoutError:
+
+            return False
