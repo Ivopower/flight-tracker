@@ -1,0 +1,7 @@
+playwright
+requests
+duckdb
+pandas
+streamlit
+python-dotenv
+beautifulsoup4
