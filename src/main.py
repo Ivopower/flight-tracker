@@ -16,6 +16,7 @@ def main():
     )
 
     service = SearchService()
+
     flights = service.search(search)
 
     repository = FlightRepository()
@@ -28,13 +29,20 @@ def main():
     for flight in flights:
         print(flight)
 
-    print("\nRegistros no banco:")
+    print("\n==========================")
+    print("VOO MAIS BARATO")
+    print("==========================\n")
 
-    resultado = database.execute(
-        "SELECT COUNT(*) FROM flights"
-    ).fetchone()
+    cheapest = repository.get_cheapest()
 
-    print(resultado)
+    print(cheapest)
+
+    print()
+    print(f"Companhia : {cheapest.airline}")
+    print(f"Preço     : R$ {cheapest.price:.2f}")
+    print(f"Saída     : {cheapest.departure}")
+    print(f"Chegada   : {cheapest.arrival}")
+    print(f"Duração   : {cheapest.duration}")
 
 
 if __name__ == "__main__":
