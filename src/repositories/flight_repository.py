@@ -12,7 +12,12 @@ class FlightRepository:
 
         self.database = Database()
 
-    def save(self, search: FlightSearch, flight: Flight):
+    def save(
+        self,
+        search: FlightSearch,
+        flight: Flight,
+        searched_at: datetime,
+    ):
 
         self.database.execute(
             """
@@ -32,7 +37,7 @@ class FlightRepository:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                datetime.now(),
+                searched_at,
                 search.origin,
                 search.destination,
                 search.departure_date,
@@ -92,6 +97,133 @@ class FlightRepository:
             ORDER BY price ASC
             LIMIT 1
             """
+        ).fetchone()
+
+        if row is None:
+            return None
+
+        return FlightRecordMapper.from_row(row)
+
+    def get_latest_search(self):
+
+        rows = self.database.execute(
+            """
+            SELECT
+                searched_at,
+                origin,
+                destination,
+                departure_date,
+                airline,
+                departure,
+                arrival,
+                duration,
+                route,
+                stops,
+                price
+            FROM flights
+            WHERE searched_at = (
+                SELECT MAX(searched_at)
+                FROM flights
+            )
+            ORDER BY price ASC
+            """
+        ).fetchall()
+
+        return [
+            FlightRecordMapper.from_row(row)
+            for row in rows
+        ]
+
+    def get_flight_history(
+        self,
+        origin: str,
+        destination: str,
+        departure_date,
+        airline: str,
+        departure: str,
+        arrival: str,
+    ):
+
+        rows = self.database.execute(
+            """
+            SELECT
+                searched_at,
+                origin,
+                destination,
+                departure_date,
+                airline,
+                departure,
+                arrival,
+                duration,
+                route,
+                stops,
+                price
+            FROM flights
+            WHERE origin = ?
+              AND destination = ?
+              AND departure_date = ?
+              AND airline = ?
+              AND departure = ?
+              AND arrival = ?
+            ORDER BY searched_at ASC
+            """,
+            (
+                origin,
+                destination,
+                departure_date,
+                airline,
+                departure,
+               arrival,
+            ),
+        ).fetchall()
+
+        return [
+            FlightRecordMapper.from_row(row)
+            for row in rows
+        ]
+
+    def get_last_flight(
+        self,
+        origin: str,
+        destination: str,
+        departure_date,
+        airline: str,
+        departure: str,
+        arrival: str,
+    ):
+
+        row = self.database.execute(
+            """
+            SELECT
+                searched_at,
+                origin,
+                destination,
+                departure_date,
+                airline,
+                departure,
+                arrival,
+                duration,
+                route,
+                stops,
+                price
+            FROM flights
+            WHERE origin = ?
+              AND destination = ?
+              AND departure_date = ?
+              AND airline = ?
+              AND departure = ?
+              AND arrival = ?
+            ORDER BY searched_at DESC
+            LIMIT 1
+            """,
+            (
+                origin,
+                destination,
+                departure_date,
+                airline,
+                departure,
+                arrival,
+            ),
         ).fetchone()
 
         if row is None:
