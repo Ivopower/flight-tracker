@@ -11,6 +11,8 @@ class FlightParser:
 
         cards = page.locator("li.pIav2d")
 
+        print(f"Cards encontrados: {cards.count()}")
+
         flights = []
 
         for i in range(cards.count()):

@@ -31,12 +31,11 @@ class GoogleFlightsScraper:
                 viewport=VIEWPORT
             )
 
-            page.goto(
-                url,
-                wait_until="networkidle"
-            )
+            page.goto(url)
 
-            page.wait_for_timeout(5000)
+            page.wait_for_load_state("domcontentloaded")
+
+            page.wait_for_timeout(8000)
 
             parser = FlightParser()
             flights = parser.parse(page)
