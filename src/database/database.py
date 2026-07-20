@@ -16,13 +16,12 @@ class Database:
 
                 searched_at TIMESTAMP,
 
-                origin TEXT,
-                destination TEXT,
-                departure_date DATE,
+                search_id TEXT,
 
                 airline TEXT,
                 departure TEXT,
                 arrival TEXT,
+
                 duration TEXT,
                 route TEXT,
                 stops TEXT,

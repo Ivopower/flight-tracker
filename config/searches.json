@@ -1,0 +1,15 @@
+[
+    {
+        "id": "casamento_gru_gyn_ida",
+        "name": "Casamento - Ida GRU",
+        "enabled": true,
+
+        "origin": "GRU",
+        "destination": "GYN",
+        "departure_date": "2026-11-14",
+
+        "target_price": 300,
+
+        "url": "https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTExLTE0agcIARIDR1JVcgcIARIDR1lOQAFIAXABggELCP___________wGYAQI&hl=pt-BR&gl=BR"
+    }
+]

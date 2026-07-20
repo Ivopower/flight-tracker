@@ -1,17 +1,15 @@
 from playwright.sync_api import TimeoutError, sync_playwright
 
-from src.config import HEADLESS, VIEWPORT
+from src.settings import HEADLESS, VIEWPORT
 from src.models.flight_search import FlightSearch
 from src.parsers.flight_parser import FlightParser
-from src.providers.google_flights_provider import GoogleFlightsProvider
 
 
 class GoogleFlightsScraper:
 
     def search(self, search: FlightSearch):
 
-        provider = GoogleFlightsProvider()
-        url = provider.get_url(search)
+        url = search.url
 
         print()
         print("Abrindo:")

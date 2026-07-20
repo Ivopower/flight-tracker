@@ -24,9 +24,7 @@ class PriceMonitorService:
         for flight in flights:
 
             last = self.repository.get_last_flight(
-                origin=search.origin,
-                destination=search.destination,
-                departure_date=search.departure_date,
+                search_id=search.id,
                 airline=flight.airline,
                 departure=flight.departure,
                 arrival=flight.arrival,

@@ -1,7 +1,8 @@
 from datetime import datetime
 
+from src.config.search_loader import SearchLoader
 from src.database.database import Database
-from src.models.flight_search import FlightSearch
+from src.notifications.telegram_notifier import TelegramNotifier
 from src.services.price_monitor_service import PriceMonitorService
 from src.services.search_service import SearchService
 
@@ -11,34 +12,40 @@ def main():
     database = Database()
     database.create_tables()
 
-    search = FlightSearch(
-        origin="GRU",
-        destination="GYN",
-        departure_date="2026-11-14",
-    )
+    searches = SearchLoader.load()
 
-    flights = SearchService().search(search)
+    all_changes = []
 
-    changes = PriceMonitorService().process(
-        search=search,
-        flights=flights,
-        searched_at=datetime.now(),
-    )
+    for search in searches:
 
-    print()
+        print()
+        print("=" * 60)
+        print(f"Pesquisando: {search.name}")
+        print("=" * 60)
 
-    print("==========================")
-    print("ALTERAÇÕES")
-    print("==========================")
+        flights = SearchService().search(search)
 
-    print()
+        changes = PriceMonitorService().process(
+            search=search,
+            flights=flights,
+            searched_at=datetime.now(),
+        )
 
-    if not changes:
+        all_changes.extend(changes)
 
+    if not all_changes:
+
+        print()
         print("Nenhuma alteração encontrada.")
         return
 
-    for change in changes:
+    print()
+    print("==========================")
+    print("ALTERAÇÕES")
+    print("==========================")
+    print()
+
+    for change in all_changes:
 
         print(change.current)
 
@@ -49,11 +56,11 @@ def main():
         else:
 
             print(
-                f"Anterior : R$ {change.previous.price:.2f}"
+                f"Antes : R$ {change.previous.price:.2f}"
             )
 
             print(
-                f"Atual    : R$ {change.current.price:.2f}"
+                f"Agora : R$ {change.current.price:.2f}"
             )
 
             print(
@@ -61,7 +68,15 @@ def main():
             )
 
             print(
-                f"Percentual: {change.percentage:.2f}%"
+                f"Percentual : {change.percentage:.2f}%"
             )
 
         print()
+
+    TelegramNotifier().send(all_changes)
+
+    print("✅ Telegram enviado.")
+
+
+if __name__ == "__main__":
+    main()
