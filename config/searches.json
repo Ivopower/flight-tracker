@@ -1,7 +1,7 @@
 [
     {
         "id": "casamento_gru_gyn_ida",
-        "name": "Casamento - Ida GRU",
+        "name": "GRU -> GYN",
         "enabled": true,
 
         "origin": "GRU",
@@ -11,5 +11,19 @@
         "target_price": 300,
 
         "url": "https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTExLTE0agcIARIDR1JVcgcIARIDR1lOQAFIAXABggELCP___________wGYAQI&hl=pt-BR&gl=BR"
+    },
+
+        {
+        "id": "casamento_cgh_gyn_ida",
+        "name": "CGH -> GYN",
+        "enabled": true,
+
+        "origin": "CGH",
+        "destination": "GYN",
+        "departure_date": "2026-11-14",
+
+        "target_price": 300,
+
+        "url": "https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTExLTE0agcIARIDQ0dIcgcIARIDR1lOQAFIAXABggELCP___________wGYAQI&hl=pt-BR&gl=BR"
     }
 ]

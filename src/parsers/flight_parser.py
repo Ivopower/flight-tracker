@@ -47,12 +47,19 @@ class FlightParser:
 
                 route = next(
                     l for l in linhas
-                    if "–" in l and "GRU" in l
+                    if re.match(r"^[A-Z]{3}\s*–\s*[A-Z]{3}$", l)
                 )
 
                 stops = next(
-                    l for l in linhas
-                    if "escala" in l.lower()
+                    (
+                        l for l in linhas
+                        if (
+                            "escala" in l.lower()
+                            or "direto" in l.lower()
+                            or "sem escalas" in l.lower()
+                        )
+                    ),
+                    "Direto",
                 )
 
                 price_text = next(

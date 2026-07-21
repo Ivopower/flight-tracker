@@ -15,6 +15,7 @@ def main():
     searches = SearchLoader.load()
 
     all_changes = []
+    best_flights = []
 
     for search in searches:
 
@@ -25,6 +26,18 @@ def main():
 
         flights = SearchService().search(search)
 
+        if flights:
+
+            best_flights.append(
+                (
+                    search,
+                    min(
+                        flights,
+                        key=lambda flight: flight.price,
+                    ),
+                )
+            )
+
         changes = PriceMonitorService().process(
             search=search,
             flights=flights,
@@ -33,47 +46,52 @@ def main():
 
         all_changes.extend(changes)
 
-    if not all_changes:
+    print()
 
+    if all_changes:
+
+        print("==========================")
+        print("ALTERAÇÕES")
+        print("==========================")
         print()
+
+        for change in all_changes:
+
+            print(change.current)
+
+            if change.previous is None:
+
+                print("Primeiro registro.")
+
+            else:
+
+                print(
+                    f"Antes : R$ {change.previous.price:.2f}"
+                )
+
+                print(
+                    f"Agora : R$ {change.current.price:.2f}"
+                )
+
+                print(
+                    f"Variação : R$ {change.difference:.2f}"
+                )
+
+                print(
+                    f"Percentual : {change.percentage:.2f}%"
+                )
+
+            print()
+
+    else:
+
         print("Nenhuma alteração encontrada.")
-        return
 
-    print()
-    print("==========================")
-    print("ALTERAÇÕES")
-    print("==========================")
-    print()
-
-    for change in all_changes:
-
-        print(change.current)
-
-        if change.previous is None:
-
-            print("Primeiro registro.")
-
-        else:
-
-            print(
-                f"Antes : R$ {change.previous.price:.2f}"
-            )
-
-            print(
-                f"Agora : R$ {change.current.price:.2f}"
-            )
-
-            print(
-                f"Variação : R$ {change.difference:.2f}"
-            )
-
-            print(
-                f"Percentual : {change.percentage:.2f}%"
-            )
-
-        print()
-
-    TelegramNotifier().send(all_changes)
+    TelegramNotifier().send(
+        changes=all_changes,
+        monitored_routes=len(searches),
+        best_flights=best_flights,
+    )
 
     print("✅ Telegram enviado.")
 
