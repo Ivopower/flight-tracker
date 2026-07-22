@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import duckdb
 
 
@@ -5,8 +7,11 @@ class Database:
 
     def __init__(self):
 
+        data_dir = Path("data")
+        data_dir.mkdir(parents=True, exist_ok=True)
+
         self.connection = duckdb.connect(
-            "data/flights.duckdb"
+            data_dir / "flights.duckdb"
         )
 
     def create_tables(self):
