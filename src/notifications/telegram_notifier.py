@@ -4,6 +4,8 @@ import requests
 from dotenv import load_dotenv
 
 from src.models.price_change import PriceChange
+from src.analytics.price_analyzer import PriceAnalyzer
+from src.repositories.flight_repository import FlightRepository
 
 load_dotenv()
 
@@ -14,6 +16,7 @@ class TelegramNotifier:
 
         self.token = os.getenv("TELEGRAM_BOT_TOKEN")
         self.chat_id = os.getenv("TELEGRAM_CHAT_ID")
+        self.repository = FlightRepository()
 
     def send(
         self,
@@ -125,6 +128,12 @@ class TelegramNotifier:
                 lines.append(
                     f"🛫 {flight.stops}"
                 )
+                lines.extend(
+                    self.__build_history(
+                        search.id,
+                        flight,
+                    )
+                )
 
             return "\n".join(lines)
 
@@ -157,7 +166,10 @@ class TelegramNotifier:
             lines.append("")
 
             lines.extend(
-                self.__build_card(flights[0])
+                self.__build_history(
+                    change.search_id,
+                    flight,
+                )
             )
 
             if len(flights) > 1:
@@ -254,40 +266,32 @@ class TelegramNotifier:
 
         return lines
 
-    def __build_price_analysis(
+    def __build_history(
         self,
-        change: PriceChange,
+        search_id: str,
+        flight,
     ) -> list[str]:
 
         lines = []
 
-        lines.append("")
+        history = self.repository.get_price_history(
+            search_id=search_id,
+            airline=flight.airline,
+            departure=flight.departure,
+            arrival=flight.arrival,
+        )
 
-        if change.target_price is not None:
+        analysis = PriceAnalyzer.analyze(history)
 
-            if change.current.price <= change.target_price:
-
-                lines.append("🟢 Excelente oportunidade")
-
-            elif change.previous and change.decreased:
-
-                lines.append("🟡 Vale acompanhar")
-
-            else:
-
-                lines.append("🔴 Acima do valor desejado")
-
-        else:
-
-            if change.previous and change.decreased:
-
-                lines.append("🟡 Vale acompanhar")
-
-            else:
-
-                lines.append("ℹ️ Sem meta definida")
+        if analysis is None:
+            return lines
 
         lines.append("")
+        lines.append("📊 Histórico")
+        lines.append("")
+        lines.append(f"📉 Menor: R$ {analysis.cheapest.price:.2f}")
+        lines.append(f"📊 Média: R$ {analysis.average_price:.2f}")
+        lines.append(f"📈 Maior: R$ {analysis.most_expensive.price:.2f}")
 
         return lines
 

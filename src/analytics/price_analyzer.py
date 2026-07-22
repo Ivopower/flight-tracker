@@ -25,13 +25,10 @@ class PriceAnalyzer:
             key=lambda x: x.price
         )
 
-        variation = current.price - history[0].price
-
         return PriceAnalysis(
             current=current,
             cheapest=cheapest,
             most_expensive=most_expensive,
             average_price=mean(prices),
-            variation=variation,
             total_searches=len(history),
         )
