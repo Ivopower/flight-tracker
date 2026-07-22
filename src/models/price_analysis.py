@@ -15,3 +15,5 @@ class PriceAnalysis:
     average_price: float
 
     total_searches: int
+
+    recommendation: str | None = None

@@ -5,7 +5,9 @@ from src.database.database import Database
 from src.notifications.telegram_notifier import TelegramNotifier
 from src.services.price_monitor_service import PriceMonitorService
 from src.services.search_service import SearchService
-
+from src.analytics.price_analyzer import PriceAnalyzer
+from src.repositories.flight_repository import FlightRepository
+from src.services.alert_service import AlertService
 
 def main():
 
@@ -16,6 +18,7 @@ def main():
 
     all_changes = []
     best_flights = []
+    repository = FlightRepository()
 
     for search in searches:
 
@@ -86,6 +89,39 @@ def main():
     else:
 
         print("Nenhuma alteração encontrada.")
+
+    print()
+    print("==========================")
+    print("ANÁLISE HISTÓRICA")
+    print("==========================")
+
+    for change in all_changes:
+
+        history = repository.get_price_history(
+            search_id=searches[0].id,
+            airline=change.current.airline,
+            departure=change.current.departure,
+            arrival=change.current.arrival,
+        )
+
+        analysis = PriceAnalyzer.analyze(history)
+
+        if analysis is None:
+            continue
+
+        recommendation = AlertService.build_recommendation(
+            analysis,
+            change.target_price,
+        )
+
+        print()
+        print(change.search_name)
+        print(f"Atual : R$ {analysis.current.price:.2f}")
+        print(f"Menor: R$ {analysis.cheapest.price:.2f}")
+        print(f"Média : R$ {analysis.average_price:.2f}")
+        print(f"Maior: R$ {analysis.most_expensive.price:.2f}")
+        print(f"Histórico: {analysis.total_searches}")
+        print(recommendation)
 
     TelegramNotifier().send(
         changes=all_changes,

@@ -9,7 +9,9 @@ class PriceChange:
     previous: Flight | None
     current: Flight
 
+    search_id: str
     search_name: str
+
     target_price: int | None
 
     difference: float

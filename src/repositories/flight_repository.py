@@ -92,3 +92,49 @@ class FlightRepository:
             stops=row[5],
             price=row[6],
         )
+
+    def get_price_history(
+        self,
+        search_id: str,
+        airline: str,
+        departure: str,
+        arrival: str,
+    ) -> list[Flight]:
+
+        rows = self.database.execute(
+            """
+            SELECT
+                airline,
+                departure,
+                arrival,
+                duration,
+                route,
+                stops,
+                price
+            FROM flights
+            WHERE search_id = ?
+              AND airline = ?
+              AND departure = ?
+              AND arrival = ?
+            ORDER BY searched_at
+            """,
+            (
+                search_id,
+                airline,
+                departure,
+                arrival,
+            ),
+        ).fetchall()
+
+        return [
+            Flight(
+                airline=row[0],
+                departure=row[1],
+                arrival=row[2],
+                duration=row[3],
+                route=row[4],
+                stops=row[5],
+                price=row[6],
+            )
+            for row in rows
+        ]

@@ -83,7 +83,7 @@ class TelegramNotifier:
             lines.append("")
             lines.append("ℹ️ Nenhuma alteração encontrada.")
             lines.append("")
-            lines.append("🏆 MELHORES PREÇOS ATUAIS")
+            lines.append("🏆 Melhor preço por rota")
 
             for search, flight in best_flights:
 
@@ -261,23 +261,31 @@ class TelegramNotifier:
 
         lines = []
 
-        if change.target_price is None:
-
-            return lines
-
         lines.append("")
 
-        if change.current.price <= change.target_price:
+        if change.target_price is not None:
 
-            lines.append("🟢 Excelente oportunidade")
+            if change.current.price <= change.target_price:
 
-        elif change.previous and change.decreased:
+                lines.append("🟢 Excelente oportunidade")
 
-            lines.append("🟡 Vale acompanhar")
+            elif change.previous and change.decreased:
+
+                lines.append("🟡 Vale acompanhar")
+
+            else:
+
+                lines.append("🔴 Acima do valor desejado")
 
         else:
 
-            lines.append("🔴 Acima do valor desejado")
+            if change.previous and change.decreased:
+
+                lines.append("🟡 Vale acompanhar")
+
+            else:
+
+                lines.append("ℹ️ Sem meta definida")
 
         lines.append("")
 

@@ -42,6 +42,7 @@ class PriceMonitorService:
                     PriceChange(
                         previous=None,
                         current=flight,
+                        search_id=search.id,
                         search_name=search.name,
                         target_price=search.target_price,
                         difference=0,
@@ -70,6 +71,7 @@ class PriceMonitorService:
                 PriceChange(
                     previous=last,
                     current=flight,
+                    search_id=search.id,
                     search_name=search.name,
                     difference=difference,
                     target_price=search.target_price,
