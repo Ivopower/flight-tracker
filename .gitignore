@@ -17,8 +17,7 @@ data/*.png
 data/*.html
 data/*.json
 
-# Banco de dados
-*.duckdb
+# Banco de dados temporários
 *.db
 *.sqlite
 *.sqlite3
