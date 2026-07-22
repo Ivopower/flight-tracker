@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from src.models.price_change import PriceChange
 from src.analytics.price_analyzer import PriceAnalyzer
 from src.repositories.flight_repository import FlightRepository
+from src.services.alert_service import AlertService
 
 load_dotenv()
 
@@ -132,6 +133,7 @@ class TelegramNotifier:
                     self.__build_history(
                         search.id,
                         flight,
+                        search.target_price,
                     )
                 )
 
@@ -166,9 +168,8 @@ class TelegramNotifier:
             lines.append("")
 
             lines.extend(
-                self.__build_history(
-                    change.search_id,
-                    flight,
+                self.__build_card(
+                    flights[0]
                 )
             )
 
@@ -180,7 +181,7 @@ class TelegramNotifier:
                 for flight in flights[1:]:
 
                     lines.extend(
-                        self.__build_card(flight)
+                        self.__build_card(change)
                     )
 
         return "\n".join(lines)
@@ -261,7 +262,11 @@ class TelegramNotifier:
                 lines.append("⚪ Sem alteração")
 
         lines.extend(
-            self.__build_price_analysis(change)
+            self.__build_history(
+                change.search_id,
+                flight,
+                change.target_price,
+            )
         )
 
         return lines
@@ -270,6 +275,7 @@ class TelegramNotifier:
         self,
         search_id: str,
         flight,
+        target_price: int | None,
     ) -> list[str]:
 
         lines = []
@@ -286,9 +292,15 @@ class TelegramNotifier:
         if analysis is None:
             return lines
 
+        recommendation = AlertService.build_recommendation(
+            analysis,
+            target_price,
+        )
+
+        lines.append("")
+        lines.append(recommendation)
         lines.append("")
         lines.append("📊 Histórico")
-        lines.append("")
         lines.append(f"📉 Menor: R$ {analysis.cheapest.price:.2f}")
         lines.append(f"📊 Média: R$ {analysis.average_price:.2f}")
         lines.append(f"📈 Maior: R$ {analysis.most_expensive.price:.2f}")
