@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 
-from src.models.flight_record import FlightRecord
+from src.models.flight import Flight
 
 
 @dataclass
 class PriceAnalysis:
 
-    current: FlightRecord
-    cheapest: FlightRecord
-    most_expensive: FlightRecord
+    current: Flight
+
+    cheapest: Flight
+
+    most_expensive: Flight
 
     average_price: float
-
-    variation: float
 
     total_searches: int

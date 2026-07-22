@@ -248,6 +248,37 @@ class TelegramNotifier:
 
                 lines.append("⚪ Sem alteração")
 
+        lines.extend(
+            self.__build_price_analysis(change)
+        )
+
+        return lines
+
+    def __build_price_analysis(
+        self,
+        change: PriceChange,
+    ) -> list[str]:
+
+        lines = []
+
+        if change.target_price is None:
+
+            return lines
+
+        lines.append("")
+
+        if change.current.price <= change.target_price:
+
+            lines.append("🟢 Excelente oportunidade")
+
+        elif change.previous and change.decreased:
+
+            lines.append("🟡 Vale acompanhar")
+
+        else:
+
+            lines.append("🔴 Acima do valor desejado")
+
         lines.append("")
 
         return lines
