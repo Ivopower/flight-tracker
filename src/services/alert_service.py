@@ -22,7 +22,7 @@ class AlertService:
                 return "🟢 Excelente oportunidade"
 
             if current_price < average_price:
-                return "🟡 Vale acompanhar"
+                return "🟡 Dentro da média histórica"
 
             return "🔴 Acima do valor desejado"
 
@@ -30,6 +30,6 @@ class AlertService:
             return "🟢 Excelente oportunidade"
 
         if current_price < average_price:
-            return "🟡 Vale acompanhar"
+            return "🟡 Dentro da média histórica"
 
         return "🔴 Acima do valor desejado"
