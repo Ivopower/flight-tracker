@@ -3,7 +3,7 @@ from datetime import datetime
 from src.database.database import Database
 from src.models.flight import Flight
 from src.models.flight_search import FlightSearch
-
+from datetime import date, datetime
 
 class FlightRepository:
 
@@ -138,3 +138,39 @@ class FlightRepository:
             )
             for row in rows
         ]
+
+    def cleanup_expired_history(
+        self,
+        searches: list[FlightSearch],
+    ):
+
+        today = date.today()
+
+        removed = 0
+
+        for search in searches:
+
+            departure_date = datetime.strptime(
+                search.departure_date,
+                "%Y-%m-%d",
+            ).date()
+
+            if departure_date <= today:
+
+                self.database.execute(
+                    """
+                    DELETE FROM flights
+                    WHERE search_id = ?
+                    """,
+                    (search.id,),
+                )
+
+                removed += 1
+
+                print(
+                    f"🧹 Histórico removido: {search.name} ({search.departure_date})"
+                )
+
+        if removed == 0:
+
+            print("🧹 Nenhum histórico expirado encontrado.")

@@ -16,9 +16,13 @@ def main():
 
     searches = SearchLoader.load()
 
+    repository = FlightRepository()
+
+    repository.cleanup_expired_history(searches)
+
     all_changes = []
     best_flights = []
-    repository = FlightRepository()
+    repository = FlightRepository
 
     for search in searches:
 
@@ -98,7 +102,7 @@ def main():
     for change in all_changes:
 
         history = repository.get_price_history(
-            search_id=searches[0].id,
+            search_id=change.search_id,
             airline=change.current.airline,
             departure=change.current.departure,
             arrival=change.current.arrival,
