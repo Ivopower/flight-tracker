@@ -16,7 +16,11 @@ class TelegramNotifier:
     def __init__(self):
 
         self.token = os.getenv("TELEGRAM_BOT_TOKEN")
-        self.chat_id = os.getenv("TELEGRAM_CHAT_ID")
+        self.chat_ids = [
+            chat_id.strip()
+            for chat_id in os.getenv("TELEGRAM_CHAT_IDS", "").split(",")
+            if chat_id.strip()
+        ]
         self.repository = FlightRepository()
 
     def send(
@@ -35,19 +39,22 @@ class TelegramNotifier:
         )
 
         print(f"BOT TOKEN: {self.token[:10]}...")
-        print(f"CHAT ID: {self.chat_id}")
+        print(f"CHAT IDS: {self.chat_ids}")
 
-        response = requests.post(
-            f"https://api.telegram.org/bot{self.token}/sendMessage",
-            json={
-                "chat_id": self.chat_id,
-                "text": message,
-            },
-            timeout=30,
-        )
+        for chat_id in self.chat_ids:
 
-        print(f"Status Code: {response.status_code}")
-        print(f"Resposta: {response.text}")
+            response = requests.post(
+                f"https://api.telegram.org/bot{self.token}/sendMessage",
+                json={
+                    "chat_id": chat_id,
+                    "text": message,
+                },
+                timeout=30,
+            )
+
+            print(f"CHAT ID: {chat_id}")
+            print(f"Status Code: {response.status_code}")
+            print(f"Resposta: {response.text}")
 
     def __build_message(
         self,
