@@ -8,10 +8,10 @@ on:
 
   schedule:
     # 09:00 (Horário de Brasília - UTC-3)
-    - cron: "0 12 * * *"
+    - cron: "15 12 * * *"
 
     # 21:00 (Horário de Brasília - UTC-3)
-    - cron: "0 0 * * *"
+    - cron: "15 0 * * *"
 
 jobs:
   monitor:
