@@ -13,7 +13,7 @@
         "url": "https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTExLTE0agcIARIDR1JVcgcIARIDR1lOQAFIAXABggELCP___________wGYAQI&hl=pt-BR&gl=BR"
     },
 
-        {
+    {
         "id": "casamento_cgh_gyn_ida",
         "name": "CGH -> GYN",
         "enabled": true,
@@ -25,5 +25,33 @@
         "target_price": 300,
 
         "url": "https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTExLTE0agcIARIDQ0dIcgcIARIDR1lOQAFIAXABggELCP___________wGYAQI&hl=pt-BR&gl=BR"
+    },
+
+    {
+        "id": "casamento_gyn_gru_volta",
+        "name": "GYN -> GRU",
+        "enabled": true,
+
+        "origin": "GYN",
+        "destination": "GRU",
+        "departure_date": "2026-11-16",
+
+        "target_price": 300,
+
+        "url": "https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTExLTE2agcIARIDR1lOcgcIARIDR1JVQAFIAXABggELCP___________wGYAQI&hl=pt-BR&gl=BR"
+    },
+
+        {
+        "id": "casamento_gyn_cgh_volta",
+        "name": "GYN -> CGH",
+        "enabled": true,
+
+        "origin": "GYN",
+        "destination": "CGH",
+        "departure_date": "2026-11-16",
+
+        "target_price": 300,
+
+        "url": "https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTExLTE2agcIARIDR1lOcgcIARIDQ0dIQAFIAXABggELCP___________wGYAQI&hl=pt-BR&gl=BR"
     }
 ]
