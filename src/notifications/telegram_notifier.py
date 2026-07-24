@@ -1,6 +1,7 @@
 import os
 
 import requests
+from datetime import datetime
 from dotenv import load_dotenv
 
 from src.models.price_change import PriceChange
@@ -132,7 +133,13 @@ class TelegramNotifier:
                 lines.append("")
                 lines.append("━━━━━━━━━━━━━━━━━━━━")
                 lines.append("")
+                departure_date = datetime.strptime(
+                    search.departure_date,
+                    "%Y-%m-%d",
+                ).strftime("%d/%m/%Y")
+
                 lines.append(f"📍 {search.name}")
+                lines.append(f"📅 {departure_date}")
                 lines.append("")
                 lines.append(f"💰 R$ {flight.price:.2f}")
 
@@ -211,17 +218,6 @@ class TelegramNotifier:
                 )
             )
 
-            if len(flights) > 1:
-
-                lines.append("✈️ OUTRAS OPÇÕES")
-                lines.append("")
-
-                for flight in flights[1:]:
-
-                    lines.extend(
-                        self.__build_card(change)
-                    )
-
         return "\n".join(lines)
 
     def __build_card(
@@ -235,7 +231,15 @@ class TelegramNotifier:
 
         lines.append("━━━━━━━━━━━━━━━━━━━━")
         lines.append("")
+        departure_date = datetime.strptime(
+            change.departure_date,
+            "%Y-%m-%d",
+        ).strftime("%d/%m/%Y")
+
+        lines.append("━━━━━━━━━━━━━━━━━━━━")
+        lines.append("")
         lines.append(f"📍 {change.search_name}")
+        lines.append(f"📅 {departure_date}")
         lines.append("")
         lines.append(f"💰 R$ {flight.price:.2f}")
 

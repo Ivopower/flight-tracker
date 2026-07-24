@@ -11,6 +11,7 @@ class PriceChange:
 
     search_id: str
     search_name: str
+    departure_date: str
 
     target_price: int | None
 

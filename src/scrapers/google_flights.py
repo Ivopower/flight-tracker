@@ -25,7 +25,10 @@ class GoogleFlightsScraper:
 
             flights = self.__parse(page)
 
-            self.__save_success(page)
+            self.__save_success(
+                page,
+                search.id,
+            )
 
             browser.close()
 
@@ -125,11 +128,15 @@ class GoogleFlightsScraper:
 
         return parser.parse(page)
 
-    def __save_success(self, page):
+    def __save_success(
+        self,
+        page,
+        search_id: str,
+    ):
 
         page.screenshot(
-            path="data/search_result.png",
-            full_page=True
+            path=f"data/search_result_{search_id}.png",
+            full_page=True,
         )
 
     def __save_error(self, page):
