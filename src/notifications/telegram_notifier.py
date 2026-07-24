@@ -30,8 +30,6 @@ class TelegramNotifier:
         best_flights: list,
     ):
 
-
-
         message = self.__build_message(
             changes=changes,
             monitored_routes=monitored_routes,
@@ -41,20 +39,53 @@ class TelegramNotifier:
         print(f"BOT TOKEN: {self.token[:10]}...")
         print(f"CHAT IDS: {self.chat_ids}")
 
+        # Telegram permite no máximo 4096 caracteres.
+        # Usamos 4000 para deixar margem de segurança.
+        max_length = 4000
+
+        parts = []
+        current_part = ""
+
+        for line in message.split("\n"):
+
+            new_line = line + "\n"
+
+            if len(current_part) + len(new_line) > max_length:
+
+                if current_part:
+                    parts.append(current_part.rstrip())
+
+                current_part = new_line
+
+            else:
+                current_part += new_line
+
+        if current_part:
+            parts.append(current_part.rstrip())
+
+        print(f"Mensagem dividida em {len(parts)} parte(s).")
+
         for chat_id in self.chat_ids:
 
-            response = requests.post(
-                f"https://api.telegram.org/bot{self.token}/sendMessage",
-                json={
-                    "chat_id": chat_id,
-                    "text": message,
-                },
-                timeout=30,
-            )
+            for index, part in enumerate(parts, start=1):
 
-            print(f"CHAT ID: {chat_id}")
-            print(f"Status Code: {response.status_code}")
-            print(f"Resposta: {response.text}")
+                response = requests.post(
+                    f"https://api.telegram.org/bot{self.token}/sendMessage",
+                    json={
+                        "chat_id": chat_id,
+                        "text": part,
+                    },
+                    timeout=30,
+                )
+
+                print(
+                    f"CHAT ID: {chat_id} | "
+                    f"Parte {index}/{len(parts)} | "
+                    f"Status: {response.status_code}"
+                )
+
+                if response.status_code != 200:
+                    print(f"Erro Telegram: {response.text}")
 
     def __build_message(
         self,
