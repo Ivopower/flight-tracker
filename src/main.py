@@ -22,7 +22,6 @@ def main():
 
     all_changes = []
     best_flights = []
-    repository = FlightRepository
 
     for search in searches:
 
